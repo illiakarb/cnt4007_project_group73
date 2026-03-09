@@ -2,9 +2,9 @@
 
 def parse_common_config(filepath="Common.cfg"):
     config = {}
-    with open(filepath, "r") as f:
+    with open(filepath, "r") as file:
         config = {}
-        for line in f:
+        for line in file:
             key, value = line.split()
             config[key] = value
     return config
@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
 def parse_peerinfo(filepath="PeerInfo.cfg"):
     peers = []
-    with open(filepath, 'r') as file:
-        for line in file:
+    with open(filepath, 'r') as file2:
+        for line in file2:
             parts = line.split()
             peer = {
                 'peer_id': parts[0],
@@ -27,4 +27,5 @@ def parse_peerinfo(filepath="PeerInfo.cfg"):
             }
             peers.append(peer)
     return peers
+
 
