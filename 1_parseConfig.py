@@ -2,8 +2,8 @@
 
 def parse_common_config(filepath="Common.cfg"):
     config = {}
-    with open(filepath, "r") as f:
-        for line in f:
+    with open(filepath, "r") as file:
+        for line in file:
             key, value = line.split()
             config[key] = value
     return config
