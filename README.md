@@ -2,7 +2,7 @@ CNT4007 Project 1 Members - Team 73
 
 1. Isaac Probst
 2. Illia Karbivnychyi
-3. 
+3. Kerwin Larrobis
 4.  
 
 IMPORTANT NOTE FOR ORDER OF IMPLEMENTATION:
@@ -33,3 +33,4 @@ Main entry point, run as "peerProcess.py" per the rubric.
 
 
 # NOTE: PLEASE LET US KNOW WHAT CHANGES ARE BEING MADE, OR COMMIT QUICKLY TO AVOID OVERWRITING> 
+
