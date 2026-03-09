@@ -1,3 +1,5 @@
+# PARSES FILE INFORMATION TO COMMON.CFG, SIMPLE INITIALIZATION FILE 
+
 def parse_common_config(filepath="Common.cfg"):
     config = {}
     with open(filepath, "r") as f:
@@ -9,4 +11,5 @@ def parse_common_config(filepath="Common.cfg"):
 
 if __name__ == "__main__":
     config = parse_common_config()
+
     print(config)
