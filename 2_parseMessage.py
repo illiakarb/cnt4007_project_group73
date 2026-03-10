@@ -12,8 +12,9 @@ def parse_message(message):
     length = int.from_bytes(message[:4], byteorder='big')
     message_type = message[4]
     payload = message[5:5+length-1]  # -1 for the message type byte
-    return message_type, payloa
+    return message_type, payload
 
 
 //  NOTE VSCODE PROVIDED MESSAGE RECEIPT FUNCTION 
+
 
