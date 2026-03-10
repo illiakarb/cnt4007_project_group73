@@ -15,6 +15,7 @@ def parse_message(message):
     return message_type, payload
 
 
-//  NOTE VSCODE PROVIDED MESSAGE RECEIPT FUNCTION 
+# NOTE VSCODE PROVIDED MESSAGE RECEIPT FUNCTION 
+
 
 
