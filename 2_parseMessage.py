@@ -1,3 +1,7 @@
+import struct
+struct.pack('>I', 5)
+
+
 def parse_handshake_message(message):
     header = message[:18].decode()
     zero_bits = message[18:28]
@@ -12,3 +16,4 @@ def parse_message(message):
 
 
 //  NOTE VSCODE PROVIDED MESSAGE RECEIPT FUNCTION 
+
