@@ -1,24 +1,15 @@
+import struct
+struct.pack('>I', 5)
+
 def build_handshake_message(peer_id):
     header = "P2PFILESHARINGPROJ"
     zero_bits = bytes(10)
     peer_id_bytes = peer_id.to_bytes(4, byteorder='big')
     return header.encode() + zero_bits + peer_id_bytes
 
-def receive_handshake_message(message):
-    header = message[:18].decode()
-    zero_bits = message[18:28]
-    peer_id = int.from_bytes(message[28:32], byteorder='big')
-    return header, zero_bits, peer_id
-
 def build_message(message_type, payload=b''):
     length = len(payload) + 1  # +1 for the message type byte
     return length.to_bytes(4, byteorder='big') + message_type.to_bytes(1, byteorder='big') + payload
-
-def receive_message(message):
-    length = int.from_bytes(message[:4], byteorder='big')
-    message_type = message[4]
-    payload = message[5:5+length-1]  # -1 for the message type byte
-    return message_type, payload
 
 '''
 HANDSHAKE MESSAGE: 32 bytes
