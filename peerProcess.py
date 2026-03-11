@@ -1,5 +1,4 @@
 import sys
-import math
 import queue
 
 from parseConfig_1 import parse_common_config, parse_peerinfo
@@ -38,7 +37,7 @@ def main():
     # initilize file size, piece size, and num pieces based on common config
     fileSize = int(commonCFG['FileSize'])
     pieceSize = int(commonCFG['PieceSize'])
-    numPieces = math.ceil(fileSize / pieceSize)
+    # numPieces = math.ceil(fileSize / pieceSize)
 
     # fileStates = FileStates(numPieces, peer['has_file'])
     
@@ -48,7 +47,7 @@ def main():
     # start server to listen for incoming connections from other peers
     incomingQueue = queue.Queue()
     connections = {}
-    listener = Server(peer['host_name'], peer['port_number'], incomingQueue, peer_id)
+    listener = Server(peer['host_name'], peer['port_number'], incomingQueue, peer_id, connections)
     listener.start()
 
     # connect to previous peers in the config file and start listening for messages from them
@@ -68,3 +67,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+    '''IMPORTANT
+    
+    TO RUN SET PARAMETER EQUAL TO HOSTING PEER ID
+    OPEN ANOTHER TERMINAL FOR EACH PEER AND SET PARAMETER EQUAL TO THAT PEER ID
+
+    or use powershell and run each peer in a separate tab with the appropriate parameter
+    '''
