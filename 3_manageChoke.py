@@ -1,6 +1,7 @@
 import os
 import importlib.util
 import threading
+import random
 
 # load a python file by path
 def load_module(module_name, file_name):
@@ -130,3 +131,55 @@ class ChokeManager:
             if peer_id not in self.choked_neighbors:
                 return True
             return self.choked_neighbors[peer_id]
+        
+    # choose preferred neighbors using interest and download rate
+    def recalculate_preferred_neighbors(self):
+        with self.lock:
+            interested_list = []
+            for peer_id in self.interested_neighbors:
+                interested_list.append(peer_id)
+            # nobody wants our pieces right now
+            if len(interested_list) == 0:
+                self.preferred_neighbors = set()
+                self._apply_choke_states_locked()
+                self._reset_download_rates_locked()
+                peerLog(self.my_peer_id, "has the preferred neighbors []")
+                return
+
+            k = self.number_of_preferred_neighbors
+            if k > len(interested_list):
+                k = len(interested_list)
+
+            # with the full file, pick preferred neighbors randomly
+            if self.has_complete_file:
+                random.shuffle(interested_list)
+                chosen = interested_list[:k]
+            # otherwise pick the interested neighbors with the highest download rate
+            else:
+                random.shuffle(interested_list)
+                interested_list.sort(
+                    key=lambda current_peer_id: self.download_rates.get(current_peer_id, 0),
+                    reverse=True
+                )
+                chosen = interested_list[:k]
+
+            self.preferred_neighbors = set(chosen)
+
+            # this will actually send choke or unchoke later
+            self._apply_choke_states_locked()
+
+            # log the new preferred neighbors
+            preferred_list = list(self.preferred_neighbors)
+            preferred_list.sort()
+            peerLog(self.my_peer_id, f"has the preferred neighbors {preferred_list}")
+            # reset interval totals for the next round
+            self._reset_download_rates_locked()
+
+    # placeholder for now
+    def _apply_choke_states_locked(self):
+        pass
+
+    # reset download totals after each preferred neighbor round
+    def _reset_download_rates_locked(self):
+        for peer_id in self.download_rates:
+            self.download_rates[peer_id] = 0
