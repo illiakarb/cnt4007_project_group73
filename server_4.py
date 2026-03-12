@@ -2,7 +2,8 @@ import socket
 import threading
 import queue
 
-from buildMessage_2 import build_handshake_message, recvExact
+from buildMessage_2 import build_handshake_message
+from buildMessage_2 import recvExact
 from parseMessage_2 import parse_handshake_message
 
 class Server:
@@ -26,7 +27,9 @@ class Server:
 
         # listen for incoming connections and handle them in separate threads
     def listen(self):
-        self.servSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        addr_family = socket.AF_INET
+        sock_type = socket.SOCK_STREAM
+        self.servSocket = socket.socket(addr_family, sock_type)
         self.servSocket.bind((self.host, self.port))
         self.servSocket.listen()
 
