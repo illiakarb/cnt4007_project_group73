@@ -13,9 +13,9 @@ def load_module(module_name, file_name):
     return module
 
 # load our files
-parse_config_module = load_module("parse_config_module", "1_parseConfig.py")
-build_message_module = load_module("build_message_module", "2_buildMessage.py")
-log_module = load_module("log_module", "2_log.py")
+parse_config_module = load_module("parse_config_module", "parseConfig_1.py")
+build_message_module = load_module("build_message_module", "buildMessage_2.py")
+log_module = load_module("log_module", "log_2.py")
 
 # use helper functions from the files
 parse_common_config = parse_config_module.parse_common_config
