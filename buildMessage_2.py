@@ -1,20 +1,37 @@
-
-
 def build_handshake_message(peer_id):
     header = "P2PFILESHARINGPROJ"
-    zero_bits = bytes(10)
-    peer_id_bytes = int(peer_id).to_bytes(4, byteorder='big')
-    return header.encode() + zero_bits + peer_id_bytes
+    header_bytes = header.encode()
 
+    zero_bits = bytes(10)
+
+    peer_id_int = int(peer_id)
+    peer_id_bytes = peer_id_int.to_bytes(4, byteorder='big')
+
+    message = header_bytes + zero_bits + peer_id_bytes
+    return message
 
 def build_message(message_type, payload=b''):
-    length = len(payload) + 1  # +1 for the message type byte
-    return length.to_bytes(4, byteorder='big') + message_type.to_bytes(1, byteorder='big') + payload
+    payload_len = len(payload)
+    message_type_byte_len = 1
+    total_len = payload_len + message_type_byte_len
 
-def build_choke(): return build_message(0)
-def build_unchoke(): return build_message(1)
-def build_interested(): return build_message(2)
-def build_not_interested(): return build_message(3)
+    len_bytes = total_len.to_bytes(4, byteorder='big')
+    type_bytes = message_type.to_bytes(1, byteorder='big')
+
+    message = len_bytes + type_bytes + payload
+    return message
+
+def build_choke():
+    return build_message(0)
+
+def build_unchoke():
+    return build_message(1)
+
+def build_interested():
+    return build_message(2)
+
+def build_not_interested():
+    return build_message(3)
 
 def build_have(piece_index):
     payload = piece_index.to_bytes(4, byteorder='big')
