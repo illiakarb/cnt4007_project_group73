@@ -3,8 +3,10 @@ import sys
 import threading
 
 #import build msg and parse msg functions TO DO
-from buildMessage_2 import build_handshake_message, recvExact
-from parseConfig_1 import parse_common_config, parse_peerinfo
+from buildMessage_2 import build_handshake_message
+from buildMessage_2 import recvExact
+from parseConfig_1 import parse_common_config
+from parseConfig_1 import parse_peerinfo
 from parseMessage_2 import parse_handshake_message
 
 
@@ -16,7 +18,9 @@ class Client:
 
     # connects to a peer at the given host and port, performs handshake, and starts listening for messages from that peer
     def connectToPeer(self, host, port, expectedPeerID):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        addr_family = socket.AF_INET
+        sock_type = socket.SOCK_STREAM
+        sock = socket.socket(addr_family, sock_type)
         sock.connect((host, int(port)))
 
         # perform handshake by sending handshake message with own peer ID

@@ -131,7 +131,7 @@ class ChokeManager:
             if peer_id not in self.choked_neighbors:
                 return True
             return self.choked_neighbors[peer_id]
-        
+
     # choose preferred neighbors using interest and download rate
     def recalculate_preferred_neighbors(self):
         with self.lock:
@@ -162,10 +162,7 @@ class ChokeManager:
                     reverse=True
                 )
                 chosen = interested_list[:k]
-
             self.preferred_neighbors = set(chosen)
-
-            # this will actually send choke or unchoke later
             self._apply_choke_states_locked()
 
             # log the new preferred neighbors
@@ -175,11 +172,74 @@ class ChokeManager:
             # reset interval totals for the next round
             self._reset_download_rates_locked()
 
-    # placeholder for now
-    def _apply_choke_states_locked(self):
-        pass
+    # choose one random interested neighbor that is still choked
+    def recalculate_optimistic_unchoked_neighbor(self):
+        with self.lock:
+            candidates = []
+            for peer_id in self.interested_neighbors:
+                is_currently_choked = True
+                if peer_id in self.choked_neighbors:
+                    is_currently_choked = self.choked_neighbors[peer_id]
+                is_preferred = peer_id in self.preferred_neighbors
 
-    # reset download totals after each preferred neighbor round
+                # only interested and currently choked neighbors can be candidates
+                if is_currently_choked and not is_preferred:
+                    candidates.append(peer_id)
+            old_optimistic = self.optimistic_unchoked_neighbor
+
+            # no valid optimistic neighbor right now
+            if len(candidates) == 0:
+                self.optimistic_unchoked_neighbor = None
+                self._apply_choke_states_locked()
+                return
+            new_optimistic = random.choice(candidates)
+            self.optimistic_unchoked_neighbor = new_optimistic
+            self._apply_choke_states_locked()
+
+            # log the new optimistic unchoked neighbor
+            if new_optimistic != old_optimistic:
+                peerLog(
+                    self.my_peer_id,
+                    f"has the optimistically unchoked neighbor [{new_optimistic}]"
+                )
+
+    # apply choke or unchoke changes from current choices
+    def _apply_choke_states_locked(self):
+        all_neighbors = set()
+
+        for peer_id in self.choked_neighbors:
+            all_neighbors.add(peer_id)
+
+        for peer_id in self.interested_neighbors:
+            all_neighbors.add(peer_id)
+
+        for peer_id in all_neighbors:
+            should_be_unchoked = False
+            if peer_id in self.preferred_neighbors:
+                should_be_unchoked = True
+            if peer_id == self.optimistic_unchoked_neighbor:
+                should_be_unchoked = True
+            currently_choked = True
+            if peer_id in self.choked_neighbors:
+                currently_choked = self.choked_neighbors[peer_id]
+            if should_be_unchoked and currently_choked:
+                self._send_unchoke_locked(peer_id)
+            elif (not should_be_unchoked) and (not currently_choked):
+                self._send_choke_locked(peer_id)
+
+    # send a choke message and update local state
+    def _send_choke_locked(self, peer_id):
+        message_bytes = build_choke()
+        self.send_raw_message(peer_id, message_bytes)
+        self.choked_neighbors[peer_id] = True
+
+    # send an unchoke message and update local state
+    def _send_unchoke_locked(self, peer_id):
+        message_bytes = build_unchoke()
+        self.send_raw_message(peer_id, message_bytes)
+        self.choked_neighbors[peer_id] = False
+
+    # reset download totals after each preferred-neighbor round
     def _reset_download_rates_locked(self):
         for peer_id in self.download_rates:
             self.download_rates[peer_id] = 0
