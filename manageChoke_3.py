@@ -31,9 +31,12 @@ class ChokeManager:
 
         # read choke values from Common.cfg
         config = parse_common_config(common_cfg_path)
-        self.number_of_preferred_neighbors = int(config["NumberOfPreferredNeighbors"])
-        self.unchoking_interval = int(config["UnchokingInterval"])
-        self.optimistic_unchoking_interval = int(config["OptimisticUnchokingInterval"])
+        preferred_neighbors_str = config["NumberOfPreferredNeighbors"]
+        unchoking_interval_str = config["UnchokingInterval"]
+        optimistic_interval_str = config["OptimisticUnchokingInterval"]
+        self.number_of_preferred_neighbors = int(preferred_neighbors_str)
+        self.unchoking_interval = int(unchoking_interval_str)
+        self.optimistic_unchoking_interval = int(optimistic_interval_str)
 
         # store neighbor state
         self.interested_neighbors = set()
@@ -59,24 +62,31 @@ class ChokeManager:
     def add_neighbor(self, peer_id):
         peer_id = int(peer_id)
         with self.lock:
-            if peer_id not in self.choked_neighbors:
+            is_newly_choked = peer_id not in self.choked_neighbors
+            if is_newly_choked:
                 self.choked_neighbors[peer_id] = True
-            if peer_id not in self.download_rates:
+            is_new_download = peer_id not in self.download_rates
+            if is_new_download:
                 self.download_rates[peer_id] = 0
 
     # remove a neighbor if needed
     def remove_neighbor(self, peer_id):
         peer_id = int(peer_id)
         with self.lock:
-            if peer_id in self.interested_neighbors:
+            in_interested_neighbors = peer_id in self.interested_neighbors
+            if in_interested_neighbors:
                 self.interested_neighbors.remove(peer_id)
-            if peer_id in self.preferred_neighbors:
+            in_preferred_neighbors = peer_id in self.preferred_neighbors
+            if in_preferred_neighbors:
                 self.preferred_neighbors.remove(peer_id)
-            if peer_id in self.choked_neighbors:
+            in_choked_neighbors = peer_id in self.choked_neighbors
+            if in_choked_neighbors:
                 del self.choked_neighbors[peer_id]
-            if peer_id in self.download_rates:
+            in_download_rates = peer_id in self.download_rates
+            if in_download_rates:
                 del self.download_rates[peer_id]
-            if self.optimistic_unchoked_neighbor == peer_id:
+            is_optimistic_unchoked_neighbor = self.optimistic_unchoked_neighbor == peer_id
+            if is_optimistic_unchoked_neighbor:
                 self.optimistic_unchoked_neighbor = None
 
     # update whether this peer has the full file
@@ -110,7 +120,10 @@ class ChokeManager:
             if peer_id not in self.download_rates:
                 self.download_rates[peer_id] = 0
 
-            self.download_rates[peer_id] = self.download_rates[peer_id] + num_bytes
+            curr_tot = self.download_rates[peer_id]
+            new_tot = curr_tot + num_bytes
+            self.download_rates[peer_id] = new_tot
+
 
     # get the current preferred neighbors
     def get_preferred_neighbors(self):
