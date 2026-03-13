@@ -52,7 +52,9 @@ class FileStates:
             interestingPieces = []
 
             for i in range(self.numPieces):
-                if neighborBitfield[i] == 1 and self.bitfield[i] == 0:
+                neighbor_has_piece = neighborBitfield[i] == 1
+                peer_missing_piece = self.bitfield[i] == 0
+                if neighbor_has_piece and peer_missing_piece:
                     interestingPieces.append(i)
 
             return interestingPieces
@@ -67,13 +69,17 @@ class FileStates:
 
             # iterate over numPieces and check if neighbor has piece, peer does not have piece, and piece is not already requested
             for i in range(self.numPieces):
-                if neighborBitfield[i] == 1 and self.bitfield[i] == 0 and not self.isRequested(i):
+                neighbor_has_piece = neighborBitfield[i] == 1
+                peer_missing_piece = self.bitfield[i] == 0
+                not_already_requested = not self.isRequested(i)
+                if neighbor_has_piece and peer_missing_piece and not_already_requested:
                     requestedPieces.append(i)
 
             return requestedPieces
         
         # check if the peer has all pieces of the file
         def is_complete(self):
-            return all(bit == 1 for bit in self.bitfield)
+            has_all_pieces = all(bit == 1 for bit in self.bitfield)
+            return has_all_pieces
         
         # implement download logic here
