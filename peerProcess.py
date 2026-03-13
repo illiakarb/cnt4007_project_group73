@@ -62,10 +62,10 @@ def main():
 
     # connect to previous peers in the config file and start listening for messages from them
     client = Client(peer_id, incomingQueue, connections)
-        for prev in prevPeers:
-            prev_host = prev['host_name']
-            prev_port = prev['port_number']
-            prev_id = prev['peer_id']
+    for prev in prevPeers:
+        prev_host = prev['host_name']
+        prev_port = prev['port_number']
+        prev_id = prev['peer_id']
         try:
             client.connectToPeer(prev_host, prev_port, prev_id)
         except Exception as e:
