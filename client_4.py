@@ -21,16 +21,18 @@ class Client:
         addr_family = socket.AF_INET
         sock_type = socket.SOCK_STREAM
         sock = socket.socket(addr_family, sock_type)
-        sock.connect((host, int(port)))
+        connect_addr = (host, int(port))
+        sock.connect(connect_addr)
 
         # perform handshake by sending handshake message with own peer ID
-        sock.sendall(build_handshake_message(self.peer_id))
+        handshake_msg = build_handshake_message(self.peer_id)
+        sock.sendall(handshake_msg)
 
         # wait for handshake response and verify peer ID
-        resp = recvExact(sock, 32)
+        handshake_size = 32
+        resp = recvExact(sock, handshake_size)
         header, zeroBits, remotePeerID = parse_handshake_message(resp)
 
-    
         # error case check
         if int(remotePeerID) != int(expectedPeerID):
             sock.close()

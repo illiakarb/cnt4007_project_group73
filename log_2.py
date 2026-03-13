@@ -3,13 +3,19 @@
 from datetime import datetime
 
 def peerLog(peer_id, msg):
-    logTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_time = datetime.now()
+    time_format = "%Y-%m-%d %H:%M:%S"
+    logTime = current_time.strftime(time_format)
 
     # Format the log message with the time, peer ID, and msg
-    logMsg = f"[{logTime}]: Peer [peer_ID {peer_id}] {msg}.\n"
+    log_prefix = f"[{logTime}]"
+    log_peer = f"Peer [peer_ID {peer_id}]"
+    logMsg = f"{log_prefix}: {log_peer} {msg}.\n"
 
     # Log the message to the appropriate file
-    filename = f"log_peer_{peer_id}.log"
+    log_prefix_str = "log_peer_"
+    log_extension = ".log"
+    filename = f"{log_prefix_str}{peer_id}{log_extension}"
 
     # Append the log message to the file
     with open(filename, "a") as f:
