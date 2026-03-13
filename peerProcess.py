@@ -7,12 +7,17 @@ from server_4 import Server
 from client_4 import Client
 
 def main(): 
-    if len(sys.argv) != 2:
+    n_args = len(sys.argv)
+    expected_n_args = 2
+    if n_args != expected_n_args:
         print("usage: python peerProcess.py <peer_id>")
         return
+
+    args = sys.argv
+    peer_id = args[1]
     
     # get peer id from arg
-    peer_id = sys.argv[1]
+    peer_id = args[1]
 
     # parse config files
     commonCFG = parse_common_config()
@@ -35,8 +40,11 @@ def main():
         return
     
     # initilize file size, piece size, and num pieces based on common config
-    fileSize = int(commonCFG['FileSize'])
-    pieceSize = int(commonCFG['PieceSize'])
+    fileSize_str = commonCFG['FileSize']
+    pieceSize_str = commonCFG['PieceSize']
+    fileSize = int(fileSize_str)
+    pieceSize = int(pieceSize_str)
+
     # numPieces = math.ceil(fileSize / pieceSize)
 
     # fileStates = FileStates(numPieces, peer['has_file'])
@@ -47,14 +55,19 @@ def main():
     # start server to listen for incoming connections from other peers
     incomingQueue = queue.Queue()
     connections = {}
-    listener = Server(peer['host_name'], peer['port_number'], incomingQueue, peer_id, connections)
+    host = peer['host_name']
+    port = peer['port_number']
+    listener = Server(host, port, incomingQueue, peer_id, connections)
     listener.start()
 
     # connect to previous peers in the config file and start listening for messages from them
     client = Client(peer_id, incomingQueue, connections)
-    for prev in prevPeers:
+        for prev in prevPeers:
+            prev_host = prev['host_name']
+            prev_port = prev['port_number']
+            prev_id = prev['peer_id']
         try:
-            client.connectToPeer(prev['host_name'], prev['port_number'], prev['peer_id'])
+            client.connectToPeer(prev_host, prev_port, prev_id)
         except Exception as e:
             print(f"error connecting to peer {prev['peer_id']} at {prev['host_name']}:{prev['port_number']}: {e}")
     try:
